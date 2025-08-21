@@ -25,3 +25,9 @@ It is designed as an educational tool to help understand **how CPUs work at a lo
 ### CLI-only build
 ```bash
 ./run_cli.sh
+```
+## Building + Running(1 step)
+```bash
+./run_cli.sh
+```
+
