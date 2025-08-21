@@ -20,3 +20,12 @@ cat > program.hex <<'EOF'
 10 2A 13 00 FF FF
 EOF
 xxd -r -p program.hex > program.bin
+
+
+> reset
+> loadhex programs/blink.hex 0000
+> setrv 0000
+> reset
+> d 0000 8
+> g
+> m ff00 1
