@@ -1,0 +1,4 @@
+/Users/apple/Documents/java-projects/C++_Projects/cpu-sim/build/CMakeFiles/cpu_core.dir
+/Users/apple/Documents/java-projects/C++_Projects/cpu-sim/build/CMakeFiles/cpu_cli.dir
+/Users/apple/Documents/java-projects/C++_Projects/cpu-sim/build/CMakeFiles/edit_cache.dir
+/Users/apple/Documents/java-projects/C++_Projects/cpu-sim/build/CMakeFiles/rebuild_cache.dir

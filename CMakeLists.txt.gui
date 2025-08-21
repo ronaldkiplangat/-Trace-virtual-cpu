@@ -1,0 +1,70 @@
+cmake_minimum_required(VERSION 3.20)
+project(cpu_sim LANGUAGES CXX)
+
+# ---- C++ standard ----
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# ---- Core library ----
+add_library(cpu_core
+    src/cpu.cpp
+    src/demo_program.cpp
+)
+target_include_directories(cpu_core PUBLIC include)
+
+# ---- CLI demo ----
+add_executable(cpu_cli src/main.cpp)
+target_link_libraries(cpu_cli PRIVATE cpu_core)
+
+# ---- GUI (SDL2 + Dear ImGui via vendored sources) ----
+# Homebrew SDL2 CMake package hint: -DSDL2_DIR="$(brew --prefix sdl2)/lib/cmake/SDL2"
+find_package(SDL2 REQUIRED)
+
+# Vendored Dear ImGui path
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/third_party/imgui)
+
+# ImGui core sources
+set(IMGUI_CORE_SRCS
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+)
+
+# Use SDL2 platform + SDL_Renderer **v2** backend (matches your repo contents)
+set(IMGUI_BACKENDS_SRCS
+    ${IMGUI_DIR}/backends/imgui_impl_sdl2.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer2.cpp
+)
+
+add_executable(cpu_gui
+    gui/app.cpp
+    ${IMGUI_CORE_SRCS}
+    ${IMGUI_BACKENDS_SRCS}
+)
+
+target_include_directories(cpu_gui PRIVATE
+    include
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+)
+
+# Link SDL2 and core
+if(TARGET SDL2::SDL2)
+    target_link_libraries(cpu_gui PRIVATE cpu_core SDL2::SDL2)
+else()
+    target_include_directories(cpu_gui PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(cpu_gui PRIVATE cpu_core ${SDL2_LIBRARIES})
+endif()
+
+# Warnings (optional)
+if(MSVC)
+    target_compile_options(cpu_core PRIVATE /W4 /permissive-)
+    target_compile_options(cpu_cli  PRIVATE /W4 /permissive-)
+    target_compile_options(cpu_gui  PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(cpu_core PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(cpu_cli  PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(cpu_gui  PRIVATE -Wall -Wextra -Wpedantic)
+endif()

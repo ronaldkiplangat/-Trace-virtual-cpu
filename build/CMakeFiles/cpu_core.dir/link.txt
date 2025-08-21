@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcpu_core.a CMakeFiles/cpu_core.dir/src/cpu.cpp.o CMakeFiles/cpu_core.dir/src/demo_program.cpp.o
+/usr/bin/ranlib libcpu_core.a

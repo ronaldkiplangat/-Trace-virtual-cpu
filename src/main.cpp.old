@@ -1,0 +1,66 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+#include "cpu.hpp"
+
+// Helper: assemble a tiny program by hand
+// Program: count 0..9 and write to OUT0 (0xFF00), then HLT
+std::vector<uint8_t> demo_program(){
+    std::vector<uint8_t> p;
+    auto emit16=[&](uint16_t v){ p.push_back(v & 0xFF); p.push_back(v>>8); };
+    p.push_back(0x10); p.push_back(0x00);                 // LDA #0
+    p.push_back(0x11); p.push_back(0x01);                 // LDB #1 (increment)
+    // loop:
+    p.push_back(0x13); emit16(0xFF00);                    // STA [OUT0]
+    p.push_back(0x20);                                    // ADD B  (A++)
+    p.push_back(0x11); p.push_back(0x0A);                 // LDB #10
+    p.push_back(0x24);                                    // XOR B (A^=10) just to twiddle flags (optional)
+    p.push_back(0x24);                                    // XOR B (undo)
+    p.push_back(0x33); p.push_back(0x0A);                 // LDX #10 (limit)
+    p.push_back(0x21);                                    // SUB B  (A = A - 1) -> wrong if B=10; keep it simple, we'll branch by Z on A-10
+    // Instead, compare A with 10: emulate CMP via SUB B then restore (skipped for brevity)
+    // We'll just stop manually after some steps in the UI.
+    p.push_back(0x30); emit16(0x0004);                    // JMP loop (address of STA)
+    p.push_back(0xFF);                                    // HLT
+    return p;
+}
+
+int main(){
+    CPU cpu;
+    // set reset vector to 0x0000
+    cpu.write16(0xFFFC, 0x0000);
+
+    auto prog = demo_program();
+    cpu.load_program(prog, 0x0000);
+    cpu.reset(0x0000);
+
+    // Run a few instructions and dump trace
+    for (int i=0; i<20 && !cpu.halted; ++i){
+        cpu.step_instr();
+    }
+
+    // Print last 10 trace frames
+    std::cout << "Cycle  PC   OP  A  B  X  F  State  Events\n";
+    size_t start = cpu.timeline.size()>10 ? cpu.timeline.size()-10 : 0;
+    auto ms2str=[&](MicroState s){
+        switch(s){
+            case MicroState::FetchOp: return "FET"; case MicroState::Decode: return "DEC"; case MicroState::FetchOpLo: return "FLO"; case MicroState::FetchOpHi: return "FHI"; case MicroState::Execute: return "EXE"; case MicroState::WriteBack: return "WBK"; case MicroState::Halted: return "HLT"; default: return "?";
+        }
+    };
+    for (size_t i=start;i<cpu.timeline.size();++i){
+        const auto& t = cpu.timeline[i];
+        std::cout << std::dec << t.cycle << "  "
+                  << std::hex << std::setw(4) << std::setfill('0') << t.pc << "  "
+                  << std::setw(2) << (int)t.opcode << "  "
+                  << std::setw(2) << (int)t.a << " "
+                  << std::setw(2) << (int)t.b << " "
+                  << std::setw(2) << (int)t.x << " "
+                  << std::setw(2) << (int)t.flags << "  "
+                  << ms2str(t.state) << "  events:" << t.events.size() << "\n";
+        for (const auto& e: t.events){
+            std::cout << "    " << (e.dir==BusDir::Read?"RD":"WR")
+                      << " [" << std::hex << std::setw(4) << std::setfill('0') << e.address << "] = "
+                      << std::setw(2) << (int)e.data << "  " << e.note << "\n";
+        }
+    }
+}
