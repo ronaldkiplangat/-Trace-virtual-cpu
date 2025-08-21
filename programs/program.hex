@@ -1,0 +1,4 @@
+10 2A       # LDA #$2A
+13 00 FF    # STA $FF00
+20          # ADD B   ; (will add whatever B currently is)
+FF          # HLT

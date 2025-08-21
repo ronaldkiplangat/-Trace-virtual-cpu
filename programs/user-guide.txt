@@ -1,0 +1,22 @@
+If you have bytes like:
+
+10 2A       ; LDA #$2A
+13 00 FF    ; STA $FF00
+FF          ; HLT
+
+
+Create a file program.bin:
+
+macOS/Linux using printf:
+
+printf '\x10\x2A\x13\x00\xFF\xFF' > program.bin
+
+
+(that last \xFF is HLT)
+
+Or from hex text:
+
+cat > program.hex <<'EOF'
+10 2A 13 00 FF FF
+EOF
+xxd -r -p program.hex > program.bin
