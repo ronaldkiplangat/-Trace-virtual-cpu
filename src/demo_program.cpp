@@ -1,7 +1,6 @@
 #include <vector>
 #include <cstdint>
 
-// Same content you had in main.cpp earlier, just moved here:
 std::vector<uint8_t> demo_program() {
     std::vector<uint8_t> p;
     auto emit16=[&](uint16_t v){ p.push_back(v & 0xFF); p.push_back(v>>8); };

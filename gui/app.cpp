@@ -11,9 +11,9 @@
 
 #include "imgui.h"
 #include "backends/imgui_impl_sdl2.h"
-#include "backends/imgui_impl_sdlrenderer2.h"  // SDL2 renderer v2 backend
+#include "backends/imgui_impl_sdlrenderer2.h"  
 
-#include "cpu.hpp"   // your core header
+#include "cpu.hpp"   
 
 // Forward declaration — implemented in src/demo_program.cpp
 extern std::vector<uint8_t> demo_program();
@@ -33,7 +33,6 @@ static const char* microStateName(MicroState s) {
     return "?";
 }
 
-// Helper: give windows an initial position/size (first run only).
 static inline void PlaceFirstUse(const ImVec2& pos, const ImVec2& size) {
     ImGui::SetNextWindowPos(pos, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
@@ -93,7 +92,7 @@ int main(int, char**) {
     }
 
     ImGui::StyleColorsDark();
-    ImGui::GetStyle().ScaleAllSizes(1.2f); // spacing feels better with big fonts
+    ImGui::GetStyle().ScaleAllSizes(1.2f);
 
     if (!ImGui_ImplSDL2_InitForSDLRenderer(window, renderer)) {
         std::fprintf(stderr, "ImGui_ImplSDL2_InitForSDLRenderer failed\n");
