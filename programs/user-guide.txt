@@ -32,3 +32,6 @@ xxd -r -p program.hex > program.bin
 
 To run the virtual CPU: ./run_cli.sh
 To view commands: type 'help'
+
+
+I will add more user friendly instructions on how to utilize the Virtual CPU for maximum benefits.
