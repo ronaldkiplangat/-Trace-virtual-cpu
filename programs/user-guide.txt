@@ -29,3 +29,6 @@ xxd -r -p program.hex > program.bin
 > d 0000 8
 > g
 > m ff00 1
+
+To run the virtual CPU: ./run_cli.sh
+To view commands: type 'help'
